@@ -26,13 +26,20 @@
           <div class="card-body">
             
             <ul class="list-menu">
-            <li><a href="#">People  </a></li>
-            <li><a href="#">Watches </a></li>
-            <li><a href="#">Cinema  </a></li>
-            <li><a href="#">Clothes  </a></li>
-            <li><a href="#">Home items </a></li>
-            <li><a href="#">Animals</a></li>
-            <li><a href="#">People </a></li>
+              {% if selected_category %}
+               <li><a href="{% url 'store' %}">All Categories</a></li>
+               {% else %}
+               <li><strong>All Categories</strong></li>
+               {% endif %}
+              {% for category in categories %}
+                {% if selected_category == category %}
+                <li><strong>{{ category.category_name }}</strong></li>
+                {% else %}
+                  <li><a href="{% url 'store-categories' category.slug %}">{{ category.category_name }}</a></li>
+                {% endif %}
+                
+              {% endfor %}
+
             </ul>
     
           </div> <!-- card-body.// -->
