@@ -11,4 +11,4 @@ def addstr(arg1, arg2):
 
 @register.filter
 def currency(amount):
-    return f'{amount:.2f} $'
+    return f'${amount:.2f}'

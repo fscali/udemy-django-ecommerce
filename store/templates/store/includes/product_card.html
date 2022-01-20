@@ -2,6 +2,7 @@
 {% load store_extras %}
 
 {% with price|currency as s_price %}
+{% if layout_type == 1 %}
 <div class="card card-product-grid">
   <a href="./product-detail.html" class="img-wrap"> <img src="{{ img }}"> </a>
   <figcaption class="info-wrap">
@@ -9,4 +10,25 @@
     <div class="price mt-1">{{  s_price }}</div> <!-- price-wrap.// -->
   </figcaption>
 </div>
+
+{% elif layout_type == 2 %}
+<figure class="card card-product-grid">
+  <div class="img-wrap"> 
+    
+    <img src="{{ img }}">
+    
+  </div> <!-- img-wrap.// -->
+  <figcaption class="info-wrap">
+    <div class="fix-height">
+      <a href="./product-detail.html" class="title">{{ title }}</a>
+      <div class="price-wrap mt-2">
+        <span class="price">{{ s_price }}</span>
+      </div> <!-- price-wrap.// -->
+    </div>
+    <a href="#" class="btn btn-block btn-primary">Add to cart </a>
+  </figcaption>
+</figure>
+
+{% endif %}
+
 {% endwith %}
