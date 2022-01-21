@@ -134,7 +134,10 @@
     <div class="row">
       {% for product in products %}
         <div class="col-md-4">
-          {% include 'store/includes/product_card.html' with layout_type=2 img=product.images.url title=product.product_name price=product.price %}
+   
+         {% include 'store/includes/product_card.html' with layout_type=2 product=product%}
+
+
         </div> 
       {% endfor %}
       

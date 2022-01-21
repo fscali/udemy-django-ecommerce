@@ -1,12 +1,12 @@
 {% load static %}
 {% load store_extras %}
 
-{% with price|currency as s_price %}
+{% with product.price|currency as s_price %}
 {% if layout_type == 1 %}
 <div class="card card-product-grid">
-  <a href="./product-detail.html" class="img-wrap"> <img src="{{ img }}"> </a>
+  <a href="{{  product.get_url  }}" class="img-wrap"> <img src="{{ product.images.url }}"> </a>
   <figcaption class="info-wrap">
-    <a href="./product-detail.html" class="title">{{ title }}</a>
+    <a href="{{  product.get_url  }}" class="title">{{ product.product_name }}</a>
     <div class="price mt-1">{{  s_price }}</div> <!-- price-wrap.// -->
   </figcaption>
 </div>
@@ -15,12 +15,12 @@
 <figure class="card card-product-grid">
   <div class="img-wrap"> 
     
-    <img src="{{ img }}">
+    <img src="{{ product.images.url }}">
     
   </div> <!-- img-wrap.// -->
   <figcaption class="info-wrap">
     <div class="fix-height">
-      <a href="./product-detail.html" class="title">{{ title }}</a>
+      <a href="{{  product.get_url  }}" class="title">{{ product.product_name }}</a>
       <div class="price-wrap mt-2">
         <span class="price">{{ s_price }}</span>
       </div> <!-- price-wrap.// -->
