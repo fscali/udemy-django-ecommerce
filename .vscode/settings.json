@@ -12,5 +12,9 @@
   "[django-html]": {
     "editor.formatOnSave": false,
     "editor.defaultFormatter": "HookyQR.beautify"
-  }
+  },
+  "advancedNewFile.exclude": {
+    "env": true
+  },
+  "advancedNewFile.showInformationMessages": true
 }
