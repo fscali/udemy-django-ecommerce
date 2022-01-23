@@ -12,3 +12,8 @@ def addstr(arg1, arg2):
 @register.filter
 def currency(amount):
     return f'${amount:.2f}'
+
+
+@register.filter
+def mult(arg1, arg2):
+    return arg1 * arg2

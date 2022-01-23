@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load store_extras %}
 
 {% block content %}
 
@@ -22,41 +23,59 @@
   </tr>
   </thead>
   <tbody>
-  <tr>
-    <td>
-      <figure class="itemside align-items-center">
-        <div class="aside"><img src="{% static 'images/items/11.jpg' %}" class="img-sm"></div>
-        <figcaption class="info">
-          <a href="#" class="title text-dark">Camera Canon EOS M50 Kit</a>
-          <p class="text-muted small">Matrix: 25 Mpx <br> Brand: Canon</p>
-        </figcaption>
-      </figure>
-    </td>
-    <td> 
-      <!-- col.// -->
-            <div class="col"> 
-              <div class="input-group input-spinner">
-                <div class="input-group-prepend">
-                <button class="btn btn-light" type="button" id="button-plus"> <i class="fa fa-minus"></i> </button>
-                </div>
-                <input type="text" class="form-control"  value="1">
-                <div class="input-group-append">
-                <button class="btn btn-light" type="button" id="button-minus"> <i class="fa fa-plus"></i> </button>
-                </div>
-              </div> <!-- input-group.// -->
-            </div> <!-- col.// -->
-    </td>
-    <td> 
-      <div class="price-wrap"> 
-        <var class="price">$1156.00</var> 
-        <small class="text-muted"> $315.20 each </small> 
-      </div> <!-- price-wrap .// -->
-    </td>
-    <td class="text-right"> 
-    <a href="" class="btn btn-danger"> Remove</a>
-    </td>
-  </tr>
-
+    {% for cart_item in cart_items %}
+    <tr>
+      <td>
+        <figure class="itemside align-items-center">
+          <div class="aside"><img src="{{cart_item.product.images.url}}" class="img-sm"></div>
+          <figcaption class="info">
+            <a href="#" class="title text-dark">{{ cart_item.product.product_name }}</a>
+            <p class="text-muted small">Color: bla bla<br> Size: XL</p>
+          </figcaption>
+        </figure>
+      </td>
+      <td> 
+        <!-- col.// -->
+              <div class="col"> 
+                <div class="input-group input-spinner">
+                  <div class="input-group-prepend">
+                    <form action="{% url 'cart' %}" method="POST">
+                      {% csrf_token %}
+                      <input type="hidden" name="sign" value="-1" >
+                      <input type="hidden" name="product_id" value="{{ cart_item.product.id }}" >
+                      <button class="btn btn-light" {% if cart_item.quantity == 0 %}disabled{% endif %} id="button-minus"> <i class="fa fa-minus"></i> </button>
+                    </form>
+                  </div>
+                  <input type="text" class="form-control"  value="{{ cart_item.quantity}}">
+                  <div class="input-group-append">
+                  <form action="{% url 'cart' %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="product_id" value="{{ cart_item.product.id }}">
+                    <button class="btn btn-light" id="button-minus"> <i class="fa fa-plus"></i> </button>
+                  </form>
+                  
+                  </div>
+                </div> <!-- input-group.// -->
+              </div> <!-- col.// -->
+      </td>
+      <td> 
+        <div class="price-wrap"> 
+          <var class="price">{{ cart_item.total|currency }}</var> 
+          <small class="text-muted">{{ cart_item.product.price|currency }} each</small> 
+        </div> <!-- price-wrap .// -->
+      </td>
+      <td class="text-right"> 
+        <form action="{% url 'cart' %}" method="POST">
+          {% csrf_token %}
+          <input type="hidden" value="{{ cart_item.id }}" name="cart_item">
+          <button class="btn btn-danger"> Remove </button>
+        </form>
+        
+      </td>
+    </tr>
+  
+    {% endfor %}
+  
   </tbody>
   </table>
   </div> <!-- card.// -->
@@ -68,15 +87,15 @@
       <div class="card-body">
         <dl class="dlist-align">
           <dt>Total price:</dt>
-          <dd class="text-right">$69.97</dd>
+          <dd class="text-right">{{ total|currency }}</dd>
         </dl>
         <dl class="dlist-align">
           <dt>Tax:</dt>
-          <dd class="text-right"> $10.00</dd>
+          <dd class="text-right">{{ tax|currency}}</dd>
         </dl>
         <dl class="dlist-align">
           <dt>Total:</dt>
-          <dd class="text-right text-dark b"><strong>$59.97</strong></dd>
+          <dd class="text-right text-dark b"><strong>{{ grand_total|currency }}</strong></dd>
         </dl>
         <hr>
         <p class="text-center mb-3">
