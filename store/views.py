@@ -18,6 +18,7 @@ class StoreView(View):
         products_count = products.count()
         selected_category = None
         selected_product = None
+        cart = request.cart
 
         if product_slug:
             selected_product = Product.objects.get(
@@ -31,9 +32,11 @@ class StoreView(View):
             return render(request, 'store/store.html', {
                 'products': products,
                 'products_count': products_count,
-                'selected_category': selected_category
+                'selected_category': selected_category,
+                'cart': cart
             })
         else:
             return render(request, 'store/product.html', {
-                'product': selected_product
+                'product': selected_product,
+                'cart': cart
             })

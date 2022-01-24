@@ -80,7 +80,13 @@
       <form action="{% url 'cart' %}" method="POST">
         {% csrf_token %}
         <input type="hidden" name="product_id" value="{{ product.id }}">
-        <button class="btn btn-primary">Add to cart <i class="fas fa-shopping-cart"></i></button>
+        {% if not product|is_in_cart:cart %}
+          <button class="btn btn-primary">Add to Cart <i class="fas fa-shopping-cart"></i></button>
+        {% else %}
+          <span class="btn btn-success">Added to Cart <i class="fas fa-check"></i></span>
+          <a href="{% url 'cart' %}" class="btn btn-outline-primary">View Cart<i class="fas fa-eye"></i></a>
+        {% endif %}
+        
       </form>
     {% endif %}
   </article> <!-- product-info-aside .// -->
