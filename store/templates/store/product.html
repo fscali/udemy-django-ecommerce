@@ -21,6 +21,8 @@
   </article> <!-- gallery-wrap .end// -->
       </aside>
       <main class="col-md-6 border-left">
+  <form action="{% url 'cart' %}" method="POST">
+    {% csrf_token %}
   <article class="content-body">
   
   <h2 class="title">{{ product.product_name }}</h2>
@@ -35,61 +37,48 @@
   
   
   <hr>
-    <div class="row">
-      <div class="item-option-select">
-        <h6>Choose Color</h6>
-        <div class="btn-group btn-group-sm btn-group-toggle" data-toggle="buttons">
-          <label class="btn btn-light">
-            <input type="radio" name="radio_color"> Silver
-          </label>
-          <label class="btn btn-light">
-            <input type="radio" name="radio_color" > Gray
-          </label>
-          <label class="btn btn-light active">
-            <input type="radio" name="radio_color checked"> Gold
-          </label>
-          <label class="btn btn-light">
-            <input type="radio" name="radio_color"> Black
-          </label>
-        </div> 
-      </div>
-    </div> <!-- row.// -->
-    <div class="row">
-      <div class="item-option-select">
-        <h6>Select Size</h6>
-        <div class="btn-group btn-group-sm btn-group-toggle" data-toggle="buttons">
-          <label class="btn btn-light">
-            <input type="radio" name="radio_color"> S
-          </label>
-          <label class="btn btn-light active">
-            <input type="radio" name="radio_color" checked> M
-          </label>
-          <label class="btn btn-light">
-            <input type="radio" name="radio_color"> L
-          </label>
-          <label class="btn btn-light">
-            <input type="radio" name="radio_color"> XL
-          </label>
-        </div> 
-      </div>
-    </div> <!-- row.// -->
+      <div class="row">
+        <div class="item-option-select">
+          <h6>Choose Color</h6>
+          <select name="color" class="form-control" required>
+            <option value="" disabled selected>Select</option>
+            {% for color in product.variations.colors %}
+            <option value="{{ color.variation_value }}">{{ color.variation_value | capfirst}}</option>
+            {% endfor %}
+         </select>
+       </div>
+      </div> <!-- row.// -->
+      <div class="row">
+        <div class="item-option-select">
+          <h6>Select Size</h6>
+          <select name="size" class="form-control" required>
+            <option value="" disabled selected>Select</option>
+            {% for size in product.variations.sizes %}
+             <option value="{{ size.variation_value }}">{{ size.variation_value | capfirst}}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div> 
+  
     <hr>
     {% if product.stock <= 0 %}
       <h5 class="text-danger">Out of Stock</h5>
     {% else %}
-      <form action="{% url 'cart' %}" method="POST">
-        {% csrf_token %}
+      
         <input type="hidden" name="product_id" value="{{ product.id }}">
-        {% if not product|is_in_cart:cart %}
+        <button class="btn btn-primary">Add to Cart <i class="fas fa-shopping-cart"></i></button>
+
+        {% comment %} {% if not product|is_in_cart:cart %}
           <button class="btn btn-primary">Add to Cart <i class="fas fa-shopping-cart"></i></button>
         {% else %}
           <span class="btn btn-success">Added to Cart <i class="fas fa-check"></i></span>
           <a href="{% url 'cart' %}" class="btn btn-outline-primary">View Cart<i class="fas fa-eye"></i></a>
         {% endif %}
-        
-      </form>
+         {% endcomment %}
+    
     {% endif %}
   </article> <!-- product-info-aside .// -->
+</form>
       </main> <!-- col.// -->
     </div> <!-- row.// -->
   </div> <!-- card.// -->

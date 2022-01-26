@@ -4,7 +4,7 @@ from operator import add
 
 import logging
 
-from store.models import Product
+from store.models import Product, Variation
 
 # Create your models here.
 
@@ -30,6 +30,8 @@ class Cart(models.Model):
 
 class CartItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    variations = models.ManyToManyField(Variation, related_name='cart_items')
+
     cart = models.ForeignKey(
         Cart, on_delete=models.CASCADE, related_name='cart_items')
     quantity = models.IntegerField()
@@ -40,3 +42,9 @@ class CartItem(models.Model):
 
     def total(self):
         return self.product.price * self.quantity
+
+    def color(self):
+        return self.variations.get(variation_category='color').variation_value
+
+    def size(self):
+        return self.variations.get(variation_category='size').variation_value

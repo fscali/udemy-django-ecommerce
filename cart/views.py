@@ -1,8 +1,10 @@
 
+from functools import reduce
 from django.shortcuts import render
 from django.views.generic import View
+from django.db.models import Q
 
-from store.models import Product
+from store.models import Product, Variation
 from .models import Cart, CartItem
 
 # Create your views here.
@@ -22,19 +24,45 @@ class CartView(View):
             cart_item.delete()
         else:
             product_id = request.POST.get('product_id')
-            sign = request.POST.get('sign')
-            sign = int(sign) if sign else 1
             if product_id:
+                sign = int(request.POST['sign']
+                           ) if 'sign' in request.POST else 1
+
+                # {'color', 'size'}
+                variation_categories = {v["variation_category"] for v in Variation.objects.filter(
+                    product__id=product_id).values('variation_category').distinct()}
+
+                # {'color': 'red', 'size': 'small'}
+                variation_fields = {
+                    k: request.POST[k] for k in variation_categories.intersection(request.POST.keys())}
+
+                # [Q(variation_category='color') & Q(variation_value='red'), Q(variation_category='size') & Q(variation_value='small')]
+                variation_queries = map(lambda x: Q(variation_category=x[0]) & Q(
+                    variation_value=x[1]), variation_fields.items())
+
+                variation_queries = reduce(
+                    lambda a, b: a | b, variation_queries, Q())
+
                 product = Product.objects.get(id=product_id)
+
+                variations = Variation.objects.filter(
+                    Q(product=product), variation_queries)
+
                 cart = request.cart
                 try:
-                    cart_item = CartItem.objects.get(
+                    cart_item = CartItem.objects.filter(
                         product=product, cart=cart)
+                    for v in variations:
+                        cart_item = cart_item.filter(variations__id=v.id)
+
+                    cart_item = cart_item.get()
                     cart_item.quantity += sign
                     cart_item.save()
                 except CartItem.DoesNotExist:
                     cart_item = CartItem.objects.create(
                         product=product, cart=cart, quantity=1)
+                    for v in variations:
+                        cart_item.variations.add(v)
                     cart_item.save()
         ctx = self._get_ctx(cart)
         return render(request, 'store/cart.html', ctx)

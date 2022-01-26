@@ -30,7 +30,7 @@
           <div class="aside"><img src="{{cart_item.product.images.url}}" class="img-sm"></div>
           <figcaption class="info">
             <a href="#" class="title text-dark">{{ cart_item.product.product_name }}</a>
-            <p class="text-muted small">Color: bla bla<br> Size: XL</p>
+            <p class="text-muted small">Color: {{ cart_item.color | capfirst }}<br> Size: {{ cart_item.size | capfirst}}</p>
           </figcaption>
         </figure>
       </td>
@@ -43,6 +43,8 @@
                       {% csrf_token %}
                       <input type="hidden" name="sign" value="-1" >
                       <input type="hidden" name="product_id" value="{{ cart_item.product.id }}" >
+                      <input type="hidden" name="color" value="{{ cart_item.color }}" >
+                      <input type="hidden" name="size" value="{{ cart_item.size }}" >
                       <button class="btn btn-light" {% if cart_item.quantity == 0 %}disabled{% endif %} id="button-minus"> <i class="fa fa-minus"></i> </button>
                     </form>
                   </div>
@@ -51,6 +53,8 @@
                   <form action="{% url 'cart' %}" method="POST">
                     {% csrf_token %}
                     <input type="hidden" name="product_id" value="{{ cart_item.product.id }}">
+                    <input type="hidden" name="color" value="{{ cart_item.color }}">
+                    <input type="hidden" name="size" value="{{ cart_item.size }}">
                     <button class="btn btn-light" id="button-minus"> <i class="fa fa-plus"></i> </button>
                   </form>
                   
