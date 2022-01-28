@@ -1,5 +1,8 @@
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.views import View
+
+from django.urls.base import reverse
 
 from django.contrib import messages
 from django.contrib import auth
@@ -75,7 +78,7 @@ class LoginView(View):
 
         if user:
             auth.login(request, user)
-            #messages.success(request, 'Your are now logged in')
+            # messages.success(request, 'Your are now logged in')
             return redirect('dashboard')
         else:
             messages.error(request, 'Wrong email or password')
@@ -113,4 +116,90 @@ class DashboardView(LoginRequiredMixin, View):
     login_url = '/accounts/login/'
 
     def get(self, request):
+        messages.success(
+            request, f'Welcome back {request.user.first_name}')
         return render(request, 'accounts/dashboard.html')
+
+
+class PasswordRecoveryView(View):
+
+    def get(self, request, uidb64="", token=""):
+        if not uidb64 or not token:
+            return render(request, 'accounts/password_recovery.html')
+        else:
+            try:
+                uid = urlsafe_base64_decode(uidb64).decode()
+                user = Account._default_manager.get(pk=uid)
+            except(TypeError, ValueError, OverflowError, Account.DoesNotExist):
+                user = None
+
+        if user is not None and default_token_generator.check_token(user, token):
+            return render(request, 'accounts/password_recovery.html', {
+                'email': user.email,
+                'verified': True,
+                'token': token
+            })
+        else:
+            return render(request, 'accounts/password_recovery.html', {
+                'expired': True
+            })
+
+    def post(self, request):
+        email = request.POST.get('email')
+        user_id = request.POST.get('user_id')
+        token = request.POST.get('token')
+        password = request.POST.get('password')
+        repeat_password = request.POST.get('repeat_password')
+        if token:
+            user = Account.objects.get(email=email)
+            checked = default_token_generator.check_token(user, token)
+            if checked and password == repeat_password:
+                user.set_password(password)
+                user.save()
+                messages.success(
+                    request, f'Your password has been successfully changed!')
+                return redirect('login')
+            else:
+                messages.error(request, f'Password verification failed')
+                return redirect('login')
+        if email:
+            try:
+                user = Account.objects.get(email=email)
+                current_site = get_current_site(request)
+                mail_subject = 'Password recovery'
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                token = default_token_generator.make_token(user)
+                uid = urlsafe_base64_encode(force_bytes(user.pk)),
+                message = render_to_string('accounts/password_recovery_email.html', {
+                    'user': user,
+                    'domain': current_site,
+                    'uid': uid,
+                    'token': token
+                })
+
+                to_email = email
+
+                if settings.DEBUG:
+                  # % url 'password-recovery-link' uidb64=uid token=token %}
+                    url = reverse('password-recovery-link',
+                                  kwargs={'uidb64': uid, 'token': token})
+                    messages.warning(
+                        request, f'http://{current_site}/{url}')
+
+                send_email = EmailMessage(mail_subject, message, to=[to_email])
+                send_email.send()
+
+            except:
+                pass
+        messages.info(
+            request, f'A verification email has been sent to {email}. Please check the mailbox.')
+        return redirect('login')
+
+# chiedo email
+# faccio post
+# verifico se mail esiste
+# preparo messaggio e mando mail con token univoco, scrivo poi un messaggio di cortesia e link alla login
+# nell'email link
+# nella view associata al link recupero utente e token
+# verifico se sono buoni e nel caso mando a pagina con inserimento e conferma password
+# a salvataggio avvenuto mando a pagina di login
