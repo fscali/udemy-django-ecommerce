@@ -19,6 +19,8 @@ from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
 
+from cart.models import Cart
+
 # Create your views here.
 
 
@@ -68,16 +70,30 @@ class RegisterView(View):
 
 class LoginView(View):
     def get(self, request):
-        return render(request, 'accounts/login.html')
+        ctx = {}
+        if request.GET.get('next'):
+            ctx['next'] = request.GET.get('next')
+        return render(request, 'accounts/login.html', ctx)
 
     def post(self, request):
         email = request.POST.get('email')
         password = request.POST.get('password')
-
+        old_cart = request.cart
         user = auth.authenticate(email=email, password=password)
 
         if user:
             auth.login(request, user)
+            cart = user.carts.all().order_by('-date_added').first()
+            if not cart:
+                cart = Cart.from_request(request)
+                user.carts.add(cart)
+
+            cart.transfer_from(old_cart)
+            """   if not user.carts.count() and request.cart.cart_items:
+                  user.carts.add(request.cart)
+                  user.save() """
+            if (request.POST.get('next')):
+                return redirect(request.POST.get('next'))
             # messages.success(request, 'Your are now logged in')
             return redirect('dashboard')
         else:

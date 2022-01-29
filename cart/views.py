@@ -1,5 +1,6 @@
 
 from functools import reduce
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.views.generic import View
 from django.db.models import Q
@@ -89,3 +90,10 @@ class CartView(View):
             ctx['tax'] = 0
             ctx['grand_total'] = 0
         return ctx
+
+
+class CheckoutView(LoginRequiredMixin, View):
+    login_url = '/accounts/login/'
+
+    def get(self, request):
+        return render(request, 'store/checkout.html')
