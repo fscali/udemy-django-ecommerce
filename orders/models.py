@@ -34,7 +34,7 @@ class Order(models.Model):
     phone = models.CharField(max_length=15)
     email = models.EmailField(max_length=50)
     address_line_1 = models.CharField(max_length=50)
-    address_line_2 = models.CharField(max_length=50)
+    address_line_2 = models.CharField(max_length=50, blank=True)
     country = models.CharField(max_length=50)
     state = models.CharField(max_length=50)
     city = models.CharField(max_length=50)
@@ -48,7 +48,13 @@ class Order(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.user.full_name
+        return f'{self.order_number} - {self.user.full_name()}' if self.user else self.order_number
+
+    def full_name(self):
+        return f'{self.first_name} {self.last_name}'
+
+    def full_address(self):
+        return f'{self.address_line_1} {self.address_line_2}'
 
 
 class OrderProduct(models.Model):

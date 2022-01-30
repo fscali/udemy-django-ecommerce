@@ -6,7 +6,7 @@
 
 
 <section class="section-content padding-y bg">
-  <form action="" method="POST">
+  <form action="{% url 'place-order' %}" method="POST">
     {% csrf_token %}
   <div class="container">
   
