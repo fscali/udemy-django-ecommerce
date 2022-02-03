@@ -5,7 +5,7 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from orders.forms import OrderForm
-from orders.models import Order
+from orders.models import Order, Payment
 
 
 # Create your views here.
@@ -47,3 +47,39 @@ class PaymentsView(LoginRequiredMixin, View):
 
     def get(self, request):
         return render(request, 'orders/payments.html')
+
+    def post(self, request):
+        order_id = request.POST.get('order_id')
+        circuit_payment_id = request.POST.get('circuit_payment_id')
+        payment_method = request.POST.get('payment_method')
+
+        order = Order.objects.get(pk=order_id)
+        order.status = "Accepted"
+        order.is_ordered = True
+
+        payment = Payment()
+        payment.user = request.user
+        payment.payment_id = f'PAYPAL-{circuit_payment_id}'
+        payment.payment_method = payment_method
+        payment.amount_paid = request.cart.grand_total()
+        payment.status = 'Completed'
+
+        payment.save()
+        order.payment = payment
+        order.save()
+
+        cart = request.cart
+
+        for cart_item in request.cart.cart_items.all():
+            qty = cart_item.quantity
+            cart_item.product.decrease_availability(qty)
+
+        cart.status = 'completed'
+        cart.save()
+
+        return render(request, 'orders/order_complete.html', {
+            "order": order,
+            "payment": payment,
+            "order_cart": cart
+
+        })

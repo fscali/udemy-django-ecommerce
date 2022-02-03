@@ -24,6 +24,18 @@ class Product(models.Model):
     def __str__(self):
         return self.product_name
 
+    def increase_availability(self, quantity):
+        self.stock += quantity
+        if self.stock > 0:
+            self.is_available = True
+        self.save()
+
+    def decrease_availability(self, quantity):
+        self.stock -= quantity
+        if self.stock <= 0:
+            self.is_available = False
+        self.save()
+
 
 class VariationManager(models.Manager):
     def colors(self):

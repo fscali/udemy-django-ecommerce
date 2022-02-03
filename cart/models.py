@@ -12,10 +12,18 @@ from store.models import Product, Variation
 
 
 class Cart(models.Model):
+    STATUS = {
+        ('Draft', 'Draft'),
+        ('Canceled', 'Canceled'),
+        ('Completed', 'Completed'),
+    }
+
     cart_id = models.CharField(max_length=250, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(
         Account, on_delete=models.CASCADE, null=True, related_name='carts')
+
+    status = models.CharField(max_length=20, default='Draft')
 
     def __str__(self):
         return self.cart_id

@@ -25,7 +25,8 @@ class CartMiddleware:
 
     def _get_cart_from_user(self, request):
         if not request.user.is_anonymous:
-            cart = request.user.carts.all().order_by('-date_added').first()
+            cart = request.user.carts.exclude(status='completed').exclude(
+                status='canceled').order_by('-date_added').first()
 
             return cart
         return None
